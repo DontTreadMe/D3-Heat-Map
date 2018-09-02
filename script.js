@@ -1,12 +1,12 @@
 
 const margin = {
-        top: 60,
-        right: 60,
-        bottom: 60,
-        left: 60
+        top: 100,
+        right: 0,
+        bottom: 100,
+        left: 120
       },
-      width = 1400 - margin.right - margin.left,
-      height = 630 - margin.top - margin.bottom,
+      width = 1500 - margin.right - margin.left,
+      height = 530 - margin.top - margin.bottom,
       
       svg = d3.select("body")
       .append("svg")
@@ -23,16 +23,16 @@ const margin = {
 d3.json('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json')
   .then((json) => {
   const dataset = json.monthlyVariance;
-  const parseYear = d3.extent(dataset, (d) => d.year);
-  const parseMonth = d3.extent(dataset, (d) => d.month - 1);
-  const parseVariance = d3.extent(dataset, (d) => d.variance);
-  const quantityYear = parseYear[1] - parseYear[0] + 1;
-  const quantityMonth = parseMonth[1] - parseMonth[0] + 1;
-  xScale.domain(parseYear);
+  const minMaxYear = d3.extent(dataset, (d) => d.year);
+  const minMaxMonth = d3.extent(dataset, (d) => d.month);
+  const minMaxVariance = d3.extent(dataset, (d) => d.variance);
+  const quantityYear = minMaxYear[1] - minMaxYear[0] + 1;
+  const quantityMonth = minMaxMonth[1] - minMaxMonth[0] + 1;
+  xScale.domain(minMaxYear);
   xScale.range([margin.left, width - width / quantityYear + margin.left]);
-  yScale.domain(parseMonth);
+  yScale.domain(minMaxMonth);
   yScale.range([margin.top, height - height / quantityMonth + margin.top]);
-  colorScale.domain(parseVariance)
+  colorScale.domain(minMaxVariance)
   svg.selectAll("rect")
     .data(dataset).enter()
     .append("rect")
@@ -41,4 +41,5 @@ d3.json('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/mas
     .attr("width", width / quantityYear)
     .attr("height", height / quantityMonth)
     .attr("fill", (d) => d3.interpolateRdYlBu(colorScale(d.variance)))
+  
 })
