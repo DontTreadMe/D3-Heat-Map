@@ -5,8 +5,10 @@ const margin = {
         bottom: 100,
         left: 120
       },
+
       width = 1400 - margin.right - margin.left,
       height = 580 - margin.top - margin.bottom,
+
       
       formatTime = d3.timeFormat("%Y - %B"),
       
@@ -47,8 +49,9 @@ d3.json('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/mas
   xScale.range([margin.left, width - width / quantityYear + margin.left]);
   yScale.domain(minMaxMonth);
   yScale.range([margin.top, height - height / quantityMonth + margin.top]);
-  colorScale.domain(minMaxVariance);
-  
+
+  colorScale.domain(minMaxVariance);  
+
   svg.selectAll("rect")
     .data(dataset).enter()
     .append("rect")
@@ -57,6 +60,8 @@ d3.json('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/mas
     .attr("width", width / quantityYear)
     .attr("height", height / quantityMonth)
     .attr("fill", (d) => d3.interpolateRdYlBu(colorScale(d.variance)))
+
     .on('mouseover', tip.show)
     .on('mouseout', tip.hide);  
+
 })
