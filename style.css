@@ -1,4 +1,13 @@
+@font-face {font-family: "Noto Sans";
+    src: url("//db.onlinewebfonts.com/t/2967a3c5ee426de27b245bcbc22ab82f.eot");
+    src: url("//db.onlinewebfonts.com/t/2967a3c5ee426de27b245bcbc22ab82f.eot?#iefix") format("embedded-opentype"),
+    url("//db.onlinewebfonts.com/t/2967a3c5ee426de27b245bcbc22ab82f.woff2") format("woff2"),
+    url("//db.onlinewebfonts.com/t/2967a3c5ee426de27b245bcbc22ab82f.woff") format("woff"),
+    url("//db.onlinewebfonts.com/t/2967a3c5ee426de27b245bcbc22ab82f.ttf") format("truetype"),
+    url("//db.onlinewebfonts.com/t/2967a3c5ee426de27b245bcbc22ab82f.svg#Noto Sans") format("svg");
+}
 body {
+  font-family: "Noto Sans";
   width: 100vw;
   height: 100vh;
 }
@@ -23,10 +32,15 @@ rect:hover {
 }
 #title, #description {
   text-align: center;
+/*   background-color: #b3ecff; */  
 }
 #title {
   font-size: 24px;
 }
  #description {
   font-size: 18px;
+  margin-bottom: 30px;
+}
+section {
+  
 }
