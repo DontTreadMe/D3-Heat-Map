@@ -1,6 +1,6 @@
 
-const margin = {top: 100, right: 0, bottom: 100, left: 120},
-      width = 1400 - margin.right - margin.left,
+const margin = {top: 100, right: 0, bottom: 100, left: 140},
+      width = 1500 - margin.right - margin.left,
       height = 680 - margin.top - margin.bottom,
       
       tip = d3.tip()
@@ -15,18 +15,28 @@ const margin = {top: 100, right: 0, bottom: 100, left: 120},
       .attr("height", height + margin.top + margin.bottom),
       
       formatYM = d3.timeFormat("%Y - %B"),
+      formatY = d3.timeFormat("%Y"),
       formatM = d3.timeFormat("%B"),
       
       xScale = d3.scaleLinear(),
       yScale = d3.scaleBand().domain([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]),
       colorScale = d3.scaleLinear().range([1, 0]),
       
-      xAxis = d3.axisBottom(xScale).tickFormat(d3.format("d")),
+      xAxis = d3.axisBottom(xScale)
+      .tickFormat((y) => {
+        const date = new Date(Date.UTC(y));
+        return formatY(date);
+      })
+      .tickSizeInner(10)
+      .tickSizeOuter(0),
+      
       yAxis = d3.axisLeft(yScale)
       .tickFormat((m) => {
         const date = new Date(Date.UTC(0, m));
         return formatM(date);
-      });
+      })
+      .tickSizeInner(10)
+      .tickSizeOuter(0);
 
 svg.call(tip);
 
@@ -40,6 +50,7 @@ d3.json('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/mas
   xScale.range([margin.left, width - width / quantityYear + margin.left]);
   yScale.range([margin.top, margin.top + height]);
   colorScale.domain(minMaxVariance);
+  xAxis.ticks(Math.round(dataset.length/120));
   
   svg.selectAll("rect")
     .data(dataset).enter()
@@ -55,12 +66,14 @@ d3.json('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/mas
   svg.append("g")
     .attr("transform", "translate(" + 0 + "," + (height + margin.top) + ")")
     .call(xAxis)
-    .attr("id", "x-axis");
+    .attr("id", "x-axis")    
+    .classed("axes", true);
   
   svg.append("g")
   .attr("transform", "translate(" + margin.left + "," + 0 + ")")
   .call(yAxis)
-  .attr("id", "y-axis");
+  .attr("id", "y-axis")    
+  .classed("axes", true);
   
   // svg.append("rect")
   // .attr("x", margin.left)
