@@ -11,9 +11,6 @@ body {
   width: 100vw;
   height: 100vh;
 }
-/* svg {
-  background-color: #b3ecff;
-} */
 #tooltip {
   padding: 0.5em;
   border-radius: 7px;			
@@ -23,7 +20,7 @@ body {
   text-align: center;
   opacity: 0.3;
 }
-rect:hover {
+.cell:hover {
   stroke: black;
   stroke-width: 2;
 }
@@ -32,7 +29,6 @@ rect:hover {
 }
 #title, #description {
   text-align: center;
-/*   background-color: #b3ecff; */  
 }
 #title {
   font-size: 24px;
@@ -40,7 +36,4 @@ rect:hover {
  #description {
   font-size: 18px;
   margin-bottom: 30px;
-}
-section {
-  
 }
