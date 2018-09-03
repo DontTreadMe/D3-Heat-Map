@@ -58,8 +58,8 @@ d3.json('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/mas
   .then((json) => {
   
   const dataset = json.monthlyVariance;
-  const minMaxYear = d3.extent(dataset, (d) => d.year);  
-  const minMaxTemperature = d3.extent(dataset, (d) => json.baseTemperature + d.variance);
+  const minMaxYear = d3.extent(dataset, d => d.year);  
+  const minMaxTemperature = d3.extent(dataset, d => json.baseTemperature + d.variance);
   const quantityYear = minMaxYear[1] - minMaxYear[0] + 1;
   calc = (arrMinMaxTemp, quantityCeils) => {    
     let arr = [], i, a = arrMinMaxTemp[0];
@@ -87,20 +87,24 @@ d3.json('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/mas
     .html(dataset[0].year + " - " + dataset[dataset.length-1].year + 
       ": base temperature " + json.baseTemperature + "&#8451;");
   
-  tip.html((d) => formatYM(new Date(d.year, d.month - 1)) + "<br/>" + 
+  tip.html(d => formatYM(new Date(d.year, d.month - 1)) + "<br/>" + 
     "Temperature: " + (json.baseTemperature + d.variance).toFixed(1) + 
     "&#8451;" + '<br/>' + "Variance: " + d.variance.toFixed(1) + "&#8451;");
   
   svg.selectAll("rect")
     .data(dataset).enter()
     .append("rect")
-    .attr("x", (d) => xScale(d.year))
-    .attr("y", (d) => yScale(d.month - 1))
+    .attr("x", d => xScale(d.year))
+    .attr("y", d => yScale(d.month - 1))
     .attr("width", width / quantityYear)
     .attr("height", height / 12)
     .classed("cell", true)
-    .attr("fill", (d) => d3.interpolateRdYlBu(tempScale(json.baseTemperature + 
-      d.variance)))
+    .attr("fill", d => 
+    d3.interpolateRdYlBu(tempScale(json.baseTemperature + d.variance)))
+    .attr("data-month", d => d.month - 1)
+    .attr("data-year", d => d.year)
+    .attr("data-temp", d => json.baseTemperature + 
+      d.variance)
     .on('mouseover', tip.show)
     .on('mouseout', tip.hide);
   
@@ -116,7 +120,8 @@ d3.json('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/mas
     .attr("id", "y-axis")    
     .classed("axes", true);
   
-  const colorLabel = svg.append("g");
+  const colorLabel = svg.append("g")
+    .attr("id", "legend");
   
   colorLabel.selectAll("rect")
     .data(colorData)
@@ -126,7 +131,7 @@ d3.json('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/mas
     .attr("y", height + margin.bottom / 2.2)
     .attr("width", widthColorLabel/colorData.length)
     .attr("height", margin.bottom / 4)
-    .attr("fill", (d) => d3.interpolateRdYlBu(tempScale(d)));
+    .attr("fill", d => d3.interpolateRdYlBu(tempScale(d)));
   
   svg.append("g")
     .attr("transform", "translate(" + 0 + "," + (height + 
