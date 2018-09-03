@@ -2,9 +2,9 @@ body {
   width: 100vw;
   height: 100vh;
 }
-/* svg {
+svg {
   background-color: #b3ecff;
-} */
+}
 #tooltip {
   padding: 0.5em;
   border-radius: 7px;			
@@ -13,4 +13,11 @@ body {
   color: white;
   text-align: center;
   opacity: 0.3;
+}
+rect:hover {
+  stroke: black;
+  stroke-width: 2;
+}
+.axes {
+  font-size: 16px
 }
