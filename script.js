@@ -1,7 +1,7 @@
 
-const margin = {top: 0, right: 0, bottom: 100, left: 140},
+const margin = {top: 0, right: 0, bottom: 100, left: 110},
       width = 1500 - margin.right - margin.left,
-      height = 680 - margin.top - margin.bottom,
+      height = 480 - margin.top - margin.bottom,
       
       formatYM = d3.timeFormat("%Y - %B"),
       formatY = d3.timeFormat("%Y"),
@@ -14,7 +14,8 @@ const margin = {top: 0, right: 0, bottom: 100, left: 140},
         d.variance.toFixed(1) + "&#8451;"),
       
       section = d3.select("body")
-        .append("section"),
+        .append("section")
+        .style("max-width", width + margin.right + margin.left + "px"),
       
       heading = section.append("heading"),
   
