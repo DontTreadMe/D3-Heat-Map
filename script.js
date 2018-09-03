@@ -1,22 +1,26 @@
 
-const margin = {top: 100, right: 0, bottom: 100, left: 140},
+const margin = {top: 0, right: 0, bottom: 100, left: 140},
       width = 1500 - margin.right - margin.left,
       height = 680 - margin.top - margin.bottom,
+      
+      formatYM = d3.timeFormat("%Y - %B"),
+      formatY = d3.timeFormat("%Y"),
+      formatM = d3.timeFormat("%B"),
       
       tip = d3.tip()
       .attr('class', 'd3-tip')
       .attr("id", "tooltip")
       .html((d) => formatYM(new Date(d.year, d.month - 1)) + '<br>' + 
         d.variance.toFixed(1) + "&#8451;"),
+      
+      section = d3.select("body")
+        .append("section"),
+      
+      heading = section.append("heading"),
   
-      svg = d3.select("body")
-      .append("svg")
+      svg = section.append("svg")
       .attr("width", width + margin.right + margin.left)
       .attr("height", height + margin.top + margin.bottom),
-      
-      formatYM = d3.timeFormat("%Y - %B"),
-      formatY = d3.timeFormat("%Y"),
-      formatM = d3.timeFormat("%B"),
       
       xScale = d3.scaleLinear(),
       yScale = d3.scaleBand().domain([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]),
@@ -42,6 +46,7 @@ svg.call(tip);
 
 d3.json('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json')
   .then((json) => {
+  
   const dataset = json.monthlyVariance;
   const minMaxYear = d3.extent(dataset, (d) => d.year);  
   const minMaxVariance = d3.extent(dataset, (d) => d.variance);
@@ -51,6 +56,14 @@ d3.json('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/mas
   yScale.range([margin.top, margin.top + height]);
   colorScale.domain(minMaxVariance);
   xAxis.ticks(Math.round(dataset.length/120));
+  
+  heading.append("h1")
+    .attr('id', 'title')
+    .text("Monthly Global Land-Surface Temperature");
+  heading.append("h2")
+    .attr('id', 'description')
+    .html(dataset[0].year + " - " + dataset[dataset.length-1].year + 
+      ": base temperature " + json.baseTemperature + "&#8451;");
   
   svg.selectAll("rect")
     .data(dataset).enter()
@@ -74,10 +87,4 @@ d3.json('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/mas
   .call(yAxis)
   .attr("id", "y-axis")    
   .classed("axes", true);
-  
-  // svg.append("rect")
-  // .attr("x", margin.left)
-  // .attr("y", margin.top)
-  // .attr("width", 15)
-  // .attr("height", height)
 })
