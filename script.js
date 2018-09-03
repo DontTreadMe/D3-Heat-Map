@@ -1,7 +1,11 @@
 
-const margin = {top: 0, right: 0, bottom: 100, left: 110},
+const margin = {top: 0, right: 0, bottom: 120, left: 110},
       width = 1500 - margin.right - margin.left,
       height = 480 - margin.top - margin.bottom,
+      
+      widthColorLabel = 500,
+      
+      quantityColorLabelTicks = 12,
       
       formatYM = d3.timeFormat("%Y - %B"),
       formatY = d3.timeFormat("%Y"),
@@ -9,9 +13,7 @@ const margin = {top: 0, right: 0, bottom: 100, left: 110},
       
       tip = d3.tip()
       .attr('class', 'd3-tip')
-      .attr("id", "tooltip")
-      .html((d) => formatYM(new Date(d.year, d.month - 1)) + '<br>' + 
-        d.variance.toFixed(1) + "&#8451;"),
+      .attr("id", "tooltip"),
       
       section = d3.select("body")
         .append("section")
@@ -25,7 +27,9 @@ const margin = {top: 0, right: 0, bottom: 100, left: 110},
       
       xScale = d3.scaleLinear(),
       yScale = d3.scaleBand().domain([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]),
-      colorScale = d3.scaleLinear().range([1, 0]),
+      tempScale = d3.scaleLinear().range([1, 0]),
+      
+      colorScale = d3.scaleLinear().range([margin.left, margin.left + widthColorLabel]),
       
       xAxis = d3.axisBottom(xScale)
       .tickFormat((y) => {
@@ -41,6 +45,11 @@ const margin = {top: 0, right: 0, bottom: 100, left: 110},
         return formatM(date);
       })
       .tickSizeInner(10)
+      .tickSizeOuter(0),
+
+      colorAxis = d3.axisBottom(colorScale)
+      .tickFormat(d3.format(".1f"))
+      .tickSizeInner(10)
       .tickSizeOuter(0);
 
 svg.call(tip);
@@ -50,13 +59,25 @@ d3.json('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/mas
   
   const dataset = json.monthlyVariance;
   const minMaxYear = d3.extent(dataset, (d) => d.year);  
-  const minMaxVariance = d3.extent(dataset, (d) => d.variance);
-  const quantityYear = minMaxYear[1] - minMaxYear[0] + 1;  
+  const minMaxTemperature = d3.extent(dataset, (d) => json.baseTemperature + d.variance);
+  const quantityYear = minMaxYear[1] - minMaxYear[0] + 1;
+  calc = (arrMinMaxTemp, quantityCeils) => {    
+    let arr = [], i, a = arrMinMaxTemp[0];
+    for (i = 0; i < quantityCeils; i++) {
+      arr = [...arr, a];
+      a = a +(arrMinMaxTemp[1] - arrMinMaxTemp[0]) / (quantityCeils - 1);
+    }
+    return arr;
+  };
+  const colorData = calc(minMaxTemperature, widthColorLabel);
+  const colorValues = calc(minMaxTemperature, quantityColorLabelTicks);
+  colorAxis.tickValues(colorValues);
   xScale.domain(minMaxYear);
   xScale.range([margin.left, width - width / quantityYear + margin.left]);
   yScale.range([margin.top, margin.top + height]);
-  colorScale.domain(minMaxVariance);
+  tempScale.domain(minMaxTemperature);
   xAxis.ticks(Math.round(dataset.length/120));
+  colorScale.domain(minMaxTemperature);
   
   heading.append("h1")
     .attr('id', 'title')
@@ -66,6 +87,10 @@ d3.json('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/mas
     .html(dataset[0].year + " - " + dataset[dataset.length-1].year + 
       ": base temperature " + json.baseTemperature + "&#8451;");
   
+  tip.html((d) => formatYM(new Date(d.year, d.month - 1)) + "<br/>" + 
+    "Temperature: " + (json.baseTemperature + d.variance).toFixed(1) + 
+    "&#8451;" + '<br/>' + "Variance: " + d.variance.toFixed(1) + "&#8451;");
+  
   svg.selectAll("rect")
     .data(dataset).enter()
     .append("rect")
@@ -73,7 +98,9 @@ d3.json('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/mas
     .attr("y", (d) => yScale(d.month - 1))
     .attr("width", width / quantityYear)
     .attr("height", height / 12)
-    .attr("fill", (d) => d3.interpolateRdYlBu(colorScale(d.variance)))
+    .classed("cell", true)
+    .attr("fill", (d) => d3.interpolateRdYlBu(tempScale(json.baseTemperature + 
+      d.variance)))
     .on('mouseover', tip.show)
     .on('mouseout', tip.hide);
   
@@ -84,8 +111,26 @@ d3.json('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/mas
     .classed("axes", true);
   
   svg.append("g")
-  .attr("transform", "translate(" + margin.left + "," + 0 + ")")
-  .call(yAxis)
-  .attr("id", "y-axis")    
-  .classed("axes", true);
-})
+    .attr("transform", "translate(" + margin.left + "," + 0 + ")")
+    .call(yAxis)
+    .attr("id", "y-axis")    
+    .classed("axes", true);
+  
+  const colorLabel = svg.append("g");
+  
+  colorLabel.selectAll("rect")
+    .data(colorData)
+    .enter()
+    .append("rect")
+    .attr("x", (d, i) => margin.left + i * widthColorLabel/colorData.length)
+    .attr("y", height + margin.bottom / 2.2)
+    .attr("width", widthColorLabel/colorData.length)
+    .attr("height", margin.bottom / 4)
+    .attr("fill", (d) => d3.interpolateRdYlBu(tempScale(d)));
+  
+  svg.append("g")
+    .attr("transform", "translate(" + 0 + "," + (height + 
+      margin.bottom / 2.2 + margin.bottom / 4) + ")")
+    .call(colorAxis)
+    .classed("axes", true);
+});
