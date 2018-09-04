@@ -54,14 +54,35 @@ const margin = {top: 0, right: 0, bottom: 120, left: 110},
 
 svg.call(tip);
 
-d3.json('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json')
-  .then((json) => {
+const addLegend = (k, widthRect) => {
+    const colors = d3.schemeRdYlBu[k].reverse();
+    const defs = svg.append("defs");
+    const gradient = defs.append("linearGradient")
+      .attr("id", "svgGradient")
+      .attr("x1", "0%").attr("y1", "0%")
+      .attr("x2", "100%").attr("y2", "0%");
+
+    gradient.selectAll("stop")
+      .data(colors).enter()
+      .append("stop")
+      .attr("offset", (d, i) => i * 100 / (k - 1) + "%")
+      .attr("stop-color", d => d)
+      .attr("stop-opacity", 1);
+
+    const legend = svg.append("g")
+      .attr("id", "legend");
   
-  const dataset = json.monthlyVariance;
-  const minMaxYear = d3.extent(dataset, d => d.year);  
-  const minMaxTemperature = d3.extent(dataset, d => json.baseTemperature + d.variance);
-  const quantityYear = minMaxYear[1] - minMaxYear[0] + 1;
-  calc = (arrMinMaxTemp, quantityCeils) => {    
+    legend.append("rect")
+      .attr("x", margin.left)
+      .attr("y", height + margin.bottom / 2.2)
+      .attr("width", widthRect)
+      .attr("height", margin.bottom / 4)
+      .attr("fill", "url(#svgGradient)")
+      .style("stroke", "black");
+  };
+  addLegend(11, widthColorLabel);
+
+const calcTickValues = (arrMinMaxTemp, quantityCeils) => {    
     let arr = [], i, a = arrMinMaxTemp[0];
     for (i = 0; i < quantityCeils; i++) {
       arr = [...arr, a];
@@ -69,8 +90,13 @@ d3.json('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/mas
     }
     return arr;
   };
-  const colorData = calc(minMaxTemperature, widthColorLabel);
-  const colorValues = calc(minMaxTemperature, quantityColorLabelTicks);
+d3.json('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json')
+  .then((json) => {
+  const dataset = json.monthlyVariance;
+  const minMaxYear = d3.extent(dataset, d => d.year);  
+  const minMaxTemperature = d3.extent(dataset, d => json.baseTemperature + d.variance);
+  const quantityYear = minMaxYear[1] - minMaxYear[0] + 1;  
+  const colorValues = calcTickValues(minMaxTemperature, quantityColorLabelTicks);
   colorAxis.tickValues(colorValues);
   xScale.domain(minMaxYear);
   xScale.range([margin.left, width - width / quantityYear + margin.left]);
@@ -122,16 +148,6 @@ d3.json('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/mas
   
   const colorLabel = svg.append("g")
     .attr("id", "legend");
-  
-  colorLabel.selectAll("rect")
-    .data(colorData)
-    .enter()
-    .append("rect")
-    .attr("x", (d, i) => margin.left + i * widthColorLabel/colorData.length)
-    .attr("y", height + margin.bottom / 2.2)
-    .attr("width", widthColorLabel/colorData.length)
-    .attr("height", margin.bottom / 4)
-    .attr("fill", d => d3.interpolateRdYlBu(tempScale(d)));
   
   svg.append("g")
     .attr("transform", "translate(" + 0 + "," + (height + 
