@@ -5,7 +5,7 @@ const margin = {top: 0, right: 0, bottom: 120, left: 110},
       
       widthColorLabel = 500,
       
-      quantityColorLabelTicks = 12,
+      quantityColorLabelTicks = 11,
       
       formatYM = d3.timeFormat("%Y - %B"),
       formatY = d3.timeFormat("%Y"),
@@ -70,17 +70,16 @@ const addLegend = (k, widthRect) => {
       .attr("stop-opacity", 1);
 
     const legend = svg.append("g")
-      .attr("id", "legend");
+      .attr("id", "legend")
+      .attr("transform", "translate(" + margin.left + ", " + (height + margin.bottom / 2.2) + ")");
   
     legend.append("rect")
-      .attr("x", margin.left)
-      .attr("y", height + margin.bottom / 2.2)
       .attr("width", widthRect)
       .attr("height", margin.bottom / 4)
       .attr("fill", "url(#svgGradient)")
       .style("stroke", "black");
   };
-  addLegend(11, widthColorLabel);
+  
 
 const calcTickValues = (arrMinMaxTemp, quantityCeils) => {    
     let arr = [], i, a = arrMinMaxTemp[0];
@@ -110,7 +109,7 @@ d3.json('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/mas
     .text("Monthly Global Land-Surface Temperature");
   heading.append("h2")
     .attr('id', 'description')
-    .html(dataset[0].year + " - " + dataset[dataset.length-1].year + 
+    .html(dataset[0].year + " - " + dataset[dataset.length - 1].year + 
       ": base temperature " + json.baseTemperature + "&#8451;");
   
   tip.html(d => formatYM(new Date(d.year, d.month - 1)) + "<br/>" + 
@@ -146,12 +145,11 @@ d3.json('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/mas
     .attr("id", "y-axis")    
     .classed("axes", true);
   
-  const colorLabel = svg.append("g")
-    .attr("id", "legend");
-  
   svg.append("g")
     .attr("transform", "translate(" + 0 + "," + (height + 
       margin.bottom / 2.2 + margin.bottom / 4) + ")")
     .call(colorAxis)
     .classed("axes", true);
+  
+  addLegend(11, widthColorLabel);
 });
